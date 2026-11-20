@@ -1,0 +1,6 @@
+(library
+ (name relate)
+ (public_name relate)
+ (modules call error notification params relate result value wire)
+ (private_modules call)
+ (libraries relate_abi relate_abi_types ctypes yojson threads.posix))
