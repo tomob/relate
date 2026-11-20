@@ -1,0 +1,110 @@
+name: OCaml client
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'clients/ocaml/**'
+      - 'docs/api/ocaml/**'
+      - 'relate/**'
+      - 'surfaces/relate-ffi/**'
+      - 'testing/relate-test-support/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - '.cargo/**'
+      - '.github/workflows/ocaml.yml'
+  push:
+    branches: [main, 'feat/**']
+    paths:
+      - 'clients/ocaml/**'
+      - 'docs/api/ocaml/**'
+      - 'relate/**'
+      - 'surfaces/relate-ffi/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - '.cargo/**'
+      - '.github/workflows/ocaml.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ocaml-${{ github.ref }}-${{ github.event.pull_request.draft || false }}
+  cancel-in-progress: true
+
+env:
+  CARGO_INCREMENTAL: '0'
+  CARGO_PROFILE_DEV_DEBUG: line-tables-only
+  DO_NOT_TRACK: '1'
+  RELATE_FFI_LIB_DIR: ${{ github.workspace }}/target/debug
+  RELATE_UPSTREAM_HEADER: ${{ github.workspace }}/surfaces/relate-ffi/include/relate.h
+  LD_LIBRARY_PATH: ${{ github.workspace }}/target/debug
+  DYLD_LIBRARY_PATH: ${{ github.workspace }}/target/debug
+
+jobs:
+  test:
+    name: OCaml (${{ matrix.os }}, OCaml ${{ matrix.ocaml }})
+    # Drafts run one host; ready PRs, main and manual runs cover all three.
+    # 5.4.1 is the development pin; 5.0.0 is the package's declared floor
+    # and runs on Linux only. The header guard compares against the
+    # checkout's FFI copy (RELATE_UPSTREAM_HEADER), so CI never passes on
+    # the package-mode skip.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJSON(github.event_name == 'pull_request' && github.event.pull_request.draft && '["ubuntu-latest"]' || '["ubuntu-latest","macos-latest","windows-latest"]') }}
+        ocaml: ['5.4.1', '5.0.0']
+        exclude:
+          - os: macos-latest
+            ocaml: '5.0.0'
+          - os: windows-latest
+            ocaml: '5.0.0'
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: dtolnay/rust-toolchain@360a4e93673de6630fac2478bc9e35244b01a759 # 1.88.0
+        with:
+          toolchain: '1.88'
+      - uses: ocaml/setup-ocaml@ff66428f72b64472e749b22e0ad4dded4b2ddca6 # v3.9.1
+        with:
+          ocaml-compiler: ${{ matrix.ocaml }}
+      - name: Build native library from this commit
+        run: cargo build --locked -p relate-ffi
+      - name: Install the client's OCaml dependencies
+        working-directory: clients/ocaml
+        run: opam install -y --deps-only .
+      - name: Build the client
+        working-directory: clients/ocaml
+        shell: bash
+        run: |
+          export PATH="$RELATE_FFI_LIB_DIR:$PATH"
+          dune build
+      - name: Test the client
+        working-directory: clients/ocaml
+        shell: bash
+        run: |
+          export PATH="$RELATE_FFI_LIB_DIR:$PATH"
+          dune test
+      - name: Run documented examples
+        shell: bash
+        run: |
+          export PATH="$RELATE_FFI_LIB_DIR:$PATH"
+          bash scripts/check-ocaml-examples.sh
+      - name: Rehearse the install image
+        working-directory: clients/ocaml
+        shell: bash
+        run: |
+          export PATH="$RELATE_FFI_LIB_DIR:$PATH"
+          dune build @install
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: ocaml-${{ matrix.os }}-${{ matrix.ocaml }}
+          path: |
+            clients/ocaml/_build/install/default/lib/**
+            clients/ocaml/_build/log
+          if-no-files-found: warn
