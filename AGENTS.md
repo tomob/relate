@@ -62,7 +62,7 @@ Every public surface ships docs under `docs/api/<surface>/`: `spec.md`
 product fit), `examples/` (runnable).
 
 Surfaces: `rust`, `c`, `cli`, `python`, `javascript`, `java`, `go`, `swift`,
-`dotnet`, `bolt`, `http`, `mcp`, `wasm`, `extensions`.
+`dotnet`, `ocaml`, `bolt`, `http`, `mcp`, `wasm`, `extensions`.
 
 - No public function, type, or protocol message ships without spec +
   description + ≥ 1 example. Examples are tests (Rust doctests /
@@ -249,7 +249,7 @@ extensions/                      first-party extension crates — the child proc
 ```
 
 Crates sit at depth two (`<group>/<crate>/`); package names don't encode
-group. Language clients (JS/Java/Go/Swift) under `clients/`; Swift manifest
+group. Language clients (JS/Java/Go/Swift/.NET/OCaml) under `clients/`; Swift manifest
 = repository-root `Package.swift` (ADR-0433).
 
 Dependency rules (ADR-0103), on resolved workspace graph by dep kind:

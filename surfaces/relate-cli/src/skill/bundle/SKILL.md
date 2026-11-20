@@ -32,6 +32,7 @@ it:
 | Agent-proposed feedback: draft the friction, get the person's approval, then `relate agent-feedback` | [client-cli](references/client-cli.md) |
 | Node.js client: `@relate/relate` install, native-lib resolution | [client-javascript](references/client-javascript.md) |
 | .NET client: C#, F#, VB, source build, native library and disposal | [client-dotnet](references/client-dotnet.md) |
+| OCaml client: ctypes link, scoped handles, streaming results, typed errors | [client-ocaml](references/client-ocaml.md) |
 | Java client: `ai.relatedb:relate` dependency, bundled natives, classifier jars | [client-java](references/client-java.md) |
 | Go client: cgo link, typed values, numeric + element ids, typed errors | [client-go](references/client-go.md) |
 | Browser/WASM client: `@relate/relate-wasm` init, OPFS, traps | [client-wasm](references/client-wasm.md) |

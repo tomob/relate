@@ -104,6 +104,23 @@ test-go:
 	bash scripts/check-go-examples.sh
 	bash scripts/check-go-standalone.sh
 
+## test-ocaml: The OCaml client gate: the FFI library, the client's tests, every documented example
+# The debug profile for the same reason as test-go: the client's dune seam
+# resolves RELATE_FFI_LIB_DIR (default target/debug) first, so a release
+# build would let the gate link a stale debug library. The sonic `clients`
+# stage redirects cargo into CARGO_TARGET_DIR and hands the library over
+# through RELATE_LIB_DIR, which the gate honors first.
+test-ocaml:
+	cargo build -p relate-ffi
+	ffi_dir="$${RELATE_LIB_DIR:-$(CURDIR)/target/debug}"; \
+	cd clients/ocaml && \
+	RELATE_FFI_LIB_DIR="$$ffi_dir" \
+	RELATE_UPSTREAM_HEADER="$(CURDIR)/surfaces/relate-ffi/include/relate.h" \
+	LD_LIBRARY_PATH="$$ffi_dir$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH}" \
+	DYLD_LIBRARY_PATH="$$ffi_dir$${DYLD_LIBRARY_PATH:+:$$DYLD_LIBRARY_PATH}" \
+	dune test
+	RELATE_FFI_LIB_DIR="$${RELATE_LIB_DIR:-$(CURDIR)/target/debug}" bash scripts/check-ocaml-examples.sh
+
 ## test: Run all Rust tests (excluding the Python crate)
 test:
 	cargo test --jobs 1 \
@@ -130,6 +147,10 @@ run:
 install-python:
 	cd surfaces/relate-python && uv venv .venv && . .venv/bin/activate && uv pip install maturin pytest pyarrow && maturin develop
 
+## install-ocaml: Set up the OCaml client dev environment (dune, ctypes, yojson into the active opam switch)
+install-ocaml:
+	cd clients/ocaml && opam install -y --deps-only .
+
 ## test-python: Run Python package tests
 test-python:
 	cd surfaces/relate-python && . .venv/bin/activate && python -m pytest python/tests/ -v
@@ -146,6 +167,7 @@ CLEAN_PATHS := \
 	surfaces/relate-python/.venv \
 	clients/javascript/node_modules \
 	clients/java/target \
+	clients/ocaml/_build \
 	docs/api/bolt/examples/websocket/node_modules \
 	surfaces/relate-wasm/pkg
 SONIC_CACHE_VOLUMES := \

@@ -184,6 +184,8 @@ jobs:
               docs/api/swift/examples/*) code=true ;;
               # The Go API examples run in the sonic `clients` stage.
               docs/api/go/examples/*) code=true ;;
+              # The OCaml API examples run in the sonic `clients` stage too.
+              docs/api/ocaml/examples/*) code=true ;;
               docs/*|.plans/*) ;;
               # The image and everything the smoke suite exercises. The
               # docker image smoke itself is nightly
