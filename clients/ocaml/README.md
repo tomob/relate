@@ -1,7 +1,7 @@
 # Relate OCaml client
 
 Thin OCaml bindings for the Relate engine over the documented typed C ABI v2
-(ADR-0626). Open a database, connect a session, run Cypher with typed
+(ADR-0699). Open a database, connect a session, run Cypher with typed
 parameters, and stream typed results with full metadata — query type,
 resolved namespace, counters, notifications, plans, timings and bookmarks.
 
@@ -54,9 +54,13 @@ One seam, three sources, resolved in this order:
 3. Never a download: a missing library fails the link with
    `cannot find -lrelate_ffi` — build it (see above) or point the variable
 
-`RELATE_FFI_LINK` overrides the link name (default `-lrelate_ffi`; use
-`-l:librelate_ffi.a` to link statically). Executables load the shared
-library at runtime through `LD_LIBRARY_PATH` (macOS:
+`RELATE_FFI_LINK` overrides the link name (default `-lrelate_ffi`; on
+Windows flexlink treats `-l` as a literal file path — pass the full path
+to the MSVC import library instead). The opam package bakes a loader
+runpath into executables on Linux and macOS through `OCAMLPARAM` (the
+`relate-ffi` package installs the native to `lib/relate/native`), so
+consumers run with no environment at all. Without it, executables load
+the shared library at runtime through `LD_LIBRARY_PATH` (macOS:
 `DYLD_LIBRARY_PATH`; Windows: `PATH` or the exe's directory).
 
 ## Use the client from a standalone OCaml project
@@ -105,4 +109,4 @@ directly; no mingw import-library step is needed.
   materialize explicitly with `Result.rows` when the whole answer must be
   held.
 - **opam publication and the lockstep version surface are separate work**
-  (ADR-0626): this directory carries no release version yet.
+  (ADR-0699): this directory carries no release version yet.

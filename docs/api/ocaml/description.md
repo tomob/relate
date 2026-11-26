@@ -7,7 +7,7 @@ included — with the full result metadata (query type, resolved namespace,
 counters, notifications, plans, timings, bookmarks).
 
 The client binds the documented typed C ABI v2 exclusively through
-`ctypes.stubs` (ADR-0626): the stubs are generated from one ABI description
+`ctypes.stubs` (ADR-0699): the stubs are generated from one ABI description
 at build time, nothing generated is committed, and the library links the
 same native `librelate_ffi` every other client wraps. It is the surface of
 choice when the graph engine should live inside an OCaml program —

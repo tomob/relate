@@ -1,7 +1,17 @@
-# 0626. Add an OCaml client over the typed C ABI
+---
+type: adr
+area: surface
+claim: 7052e9b632cc336b0dfb16b7f81cd70de2466bc8
+name: 0699-add-the-ocaml-client
+status: proposed
+tags:
+  - ocaml
+  - client
+  - ffi
+title: Add an OCaml client over the typed C ABI
+---
 
-Status: Proposed
-Claim: cf1e53ab241a55f9fe149c54d621b03af04215c6
+# 0699. Add an OCaml client over the typed C ABI
 
 ## Context
 
@@ -57,23 +67,26 @@ serialized; native calls are synchronous.
 - Generate a mingw import library on Windows up front: rejected —
   flexdll links against the DLL itself; the workaround is the fallback
   if CI proves otherwise.
-- Vendor the five natives inside the opam archive: rejected — a large
-  binary archive is atypical for the opam repository.
+- Publish one package carrying the five natives as opam extra-sources:
+  rejected — a rehearsal build proved it cannot work: opam's build sandbox
+  keeps the switch prefix read-only while the client's C link flags are
+  frozen into the installed META, so the native must already sit in the
+  switch before the client builds.
 - Ship a `conf-relate-ffi` package probing a system library: rejected —
   presence without versioning, and nothing distributes the native as a
   system package.
-- Split into two opam packages with a version pin: rejected for the
-  first release — one package with extra-sources is the smaller start;
-  the split stays an evolution path.
 
 ## Consequences
 
 The repository gains an OCaml surface, documentation and native
 compatibility coverage on the five platforms. The native library is
 required at build and runtime; the client README documents the three
-sources (workspace build, explicit path, package extra-sources). opam
-publication and the version surface in the release bump are separate
-work; the package will pin the release's FFI archives as extra-sources —
-prebuilt binaries fetched at install time, which the opam repository may
-question, with the conf-package as the fallback. Other platforms may
-work with a self-built native but are unsupported.
+sources (workspace build, explicit path, the opam package's switch
+location). opam publication and the version surface in the release bump
+are separate work; the publication ships as two packages — relate-ffi
+installs the release's platform native into the switch as
+lib/relate/native, and relate builds against that location, pinned to
+relate-ffi's version so the pair stays lockstep, with a loader runpath so
+consumers need no environment. The opam repository may still question
+the prebuilt binaries; the conf-package stays the fallback. Other
+platforms may work with a self-built native but are unsupported.

@@ -7,15 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-
-- New OCaml client `relate` under `clients/ocaml` (ADR-0626): an embedded
-  OCaml 5 API over the typed C ABI v2, with scoped databases, connections
-  and transactions, typed parameters, graph, temporal and vector values,
-  streaming results with full metadata, and the classified error shape.
-  CI builds the native library from the same checkout and runs the
-  client's tests and documented examples on Linux, macOS and Windows.
-
 ## [1.3.0] — 2026-11-25
 
 ### Added
