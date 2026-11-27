@@ -1,0 +1,5 @@
+(library
+ (name relate_abi_types)
+ (public_name relate.abi_types)
+ (modules abi views)
+ (libraries ctypes integers))

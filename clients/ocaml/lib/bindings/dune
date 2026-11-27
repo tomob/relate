@@ -1,0 +1,35 @@
+(executable
+ (name gen)
+ (modules gen)
+ (libraries relate_abi_types ctypes.stubs integers))
+
+(rule
+ (targets cstubs.c)
+ (deps gen.exe)
+ (action (with-stdout-to cstubs.c (run ./gen.exe c))))
+
+(rule
+ (targets bindings_generated.ml)
+ (deps gen.exe)
+ (action (with-stdout-to bindings_generated.ml (run ./gen.exe ml))))
+
+(rule
+ (targets relate.h)
+ (deps ../../include/relate.h)
+ (action (copy ../../include/relate.h relate.h)))
+
+(library
+ (name relate_abi)
+ (public_name relate.abi)
+ (modules bindings bindings_generated)
+ (private_modules bindings_generated)
+ (foreign_stubs
+  (language c)
+  (names cstubs abi_check)
+  (flags
+   (:standard -Wno-incompatible-pointer-types -Wno-discarded-qualifiers)))
+ (c_library_flags
+  (-L%{env:RELATE_FFI_LIB_DIR=/no-relate-ffi-lib-dir}
+   -L%{workspace_root}/../../target/debug
+   %{env:RELATE_FFI_LINK=-lrelate_ffi}))
+ (libraries ctypes ctypes.stubs integers relate_abi_types))

@@ -328,6 +328,83 @@ and uploads with a Central Portal token, both stored as secrets in the
    on any branch, never by fork pull requests — a standing exposure
    that predates ADR-0630, not one it introduced.
 
+## opam (OCaml client, `relate` + `relate-ffi`)
+
+The OCaml client publishes to opam through a **manual pull request** — no
+credentials, no automation (ADR-0699). Unlike the other registries, opam
+is a git repository: packages land as PRs to `ocaml/opam-repository`, and
+its maintainers review every one.
+
+The publication is **two packages, in lockstep by version**:
+`relate-ffi.X.Y.Z` unpacks the release's platform FFI archive into the
+switch as `lib/relate/native`, and `relate.X.Y.Z` builds against that
+location, pinning `relate-ffi` to its own version. The split is forced:
+opam's build sandbox keeps the switch prefix read-only while the client's
+C link flags freeze into the installed META, so the native must already
+sit in the switch before the client builds — a rehearsal proved the
+single-package variant cannot satisfy both.
+
+One-time setup:
+
+1. Fork <https://github.com/ocaml/opam-repository>.
+2. Re-check both names are free: <https://opam.ocaml.org/packages/relate/>
+   and <https://opam.ocaml.org/packages/relate-ffi/>.
+
+Per release (X.Y.Z = a release whose FFI assets exist):
+
+1. **Rehearse first** — the prep script has a local mode that packages the
+   working tree, builds the host FFI archive from `target/<profile>`, and
+   generates `file://` URLs, so a local opam repository runs the exact
+   fetch → extract → extra-sources → sandboxed build → install flow opam
+   CI runs, before any release exists:
+
+   ```sh
+   scripts/opam-publish-prep.sh --local --profile debug
+   opam switch create relate-rehearsal ocaml-base-compiler.5.4.1
+   opam repository add relate-rehearsal target/opam-prep
+   opam install --switch relate-rehearsal relate
+   ```
+
+   A consumer proves the rpath end to end — it must run with
+   `LD_LIBRARY_PATH` unset:
+
+   ```sh
+   opam exec --switch relate-rehearsal -- ocamlfind ocamlopt \
+     -package relate -linkpkg consumer.ml -o consumer
+   env -u LD_LIBRARY_PATH ./consumer
+   ```
+
+   Cleanup: `opam repository remove relate-rehearsal; opam switch remove
+   relate-rehearsal`.
+
+2. **Generate the real packages** from the release's assets (the script
+   downloads the five FFI archives, verifies each is a readable tarball,
+   computes the sha256 checksums — the release's signed `SHA256SUMS`
+   covers only the CLI binaries — and writes the two package files):
+
+   ```sh
+   scripts/opam-publish-prep.sh --tag vX.Y.Z
+   ```
+
+3. **Upload the source tarball** the relate package pins (the FFI
+   archives are already release assets):
+
+   ```sh
+   gh release upload vX.Y.Z target/opam-prep/relate-ocaml-src-vX.Y.Z.tar.gz
+   ```
+
+4. **Open the PR by hand**: in your fork, copy
+   `target/opam-prep/packages/relate-ffi/relate-ffi.X.Y.Z/` and
+   `target/opam-prep/packages/relate/relate.X.Y.Z/` under `packages/`,
+   commit, push, open the PR against `ocaml/opam-repository`. The
+   repository's CI builds both packages on its platform matrix; the
+   `available:` field restricts them to the five triples the release
+   pipeline builds, so the matrix never builds where no native exists.
+
+Published versions are immutable. If a release's package is broken, mark
+it `available: false` and publish a fixed version — never change the
+checksums of a merged package.
+
 ## Between releases
 
 After a release, the workspace version on `main` is the **next

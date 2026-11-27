@@ -1,0 +1,28 @@
+opam-version: "2.0"
+synopsis: "OCaml client for Relate, the embedded property-graph engine"
+description: """
+An embedded client binding the Relate engine through its typed C ABI v2:
+open a database, connect a session, run Cypher with typed parameters, and
+walk typed results (values, entities, temporals, points, vectors) with
+result metadata — query type, resolved namespace, counters, notifications,
+plans, timings and bookmarks.
+"""
+maintainer: "Relate maintainers"
+authors: ["Relate maintainers"]
+license: "Apache-2.0"
+homepage: "https://github.com/relatedb/relate"
+bug-reports: "https://github.com/relatedb/relate/issues"
+dev-repo: "git+https://github.com/relatedb/relate.git"
+build: [
+  ["dune" "build" "-p" name "-j" jobs]
+]
+depends: [
+  "ocaml" {>= "5.0.0"}
+  "dune" {>= "3.0"}
+  "ctypes" {>= "0.20.0"}
+  "yojson" {>= "2.0.0"}
+]
+available: [
+  (arch = "x86_64" | arch = "arm64") & (os = "linux" | os = "macos")
+  | (os = "win32" & arch = "x86_64")
+]

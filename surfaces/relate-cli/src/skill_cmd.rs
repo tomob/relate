@@ -51,6 +51,10 @@ const BUNDLE_FILES: &[(&str, &str)] = &[
         include_str!("skill/bundle/references/client-dotnet.md"),
     ),
     (
+        "references/client-ocaml.md",
+        include_str!("skill/bundle/references/client-ocaml.md"),
+    ),
+    (
         "references/client-java.md",
         include_str!("skill/bundle/references/client-java.md"),
     ),

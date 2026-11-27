@@ -448,6 +448,10 @@ stages:
       # documented example, AGENTS.md §2) so this lane cannot drift from
       # the recipe; the stage's CGO_LDFLAGS already names the profile.
       - (cd /workspace && make test-go)
+      # Same shape for the OCaml gate: one make target, so the lane cannot
+      # drift from the recipe; the stage hands the library over through
+      # RELATE_LIB_DIR, which the target honors first.
+      - (cd /workspace && make test-ocaml)
       # The shipped extension examples are clients of the MCP stdio mount
       # (ADR-0442): the bash one runs e2e, the Python and TypeScript ones
       # are parsed here (this image carries node and python3).

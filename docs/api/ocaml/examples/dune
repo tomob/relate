@@ -1,0 +1,14 @@
+(executable
+ (name example_open_query)
+ (modules example_open_query)
+ (libraries relate))
+
+(executable
+ (name example_params)
+ (modules example_params)
+ (libraries relate))
+
+(executable
+ (name example_values)
+ (modules example_values)
+ (libraries relate))

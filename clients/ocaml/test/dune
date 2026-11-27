@@ -1,0 +1,39 @@
+(test
+ (name abi_v2)
+ (modules abi_v2)
+ (libraries relate))
+
+(test
+ (name header_test)
+ (modules header_test)
+ (libraries relate))
+
+(test
+ (name lifecycle)
+ (modules lifecycle)
+ (libraries relate))
+
+(test
+ (name values)
+ (modules values)
+ (libraries relate))
+
+(test
+ (name params_test)
+ (modules params_test)
+ (libraries relate))
+
+(test
+ (name result_meta)
+ (modules result_meta)
+ (libraries relate))
+
+(test
+ (name transaction)
+ (modules transaction)
+ (libraries relate))
+
+(test
+ (name errors)
+ (modules errors)
+ (libraries relate))

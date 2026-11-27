@@ -340,6 +340,16 @@ library from this checkout, then reference the managed project. See the
 [API specification](docs/api/dotnet/spec.md) and
 [runnable example](docs/api/dotnet/examples/Program.cs).
 
+### OCaml
+
+OCaml 5 via `Relate` (ctypes over the typed C ABI): scoped databases,
+connections and transactions, typed parameters, streaming results with
+full metadata, classified errors. The client lives under
+[`clients/ocaml`](clients/ocaml); build the native library from this
+checkout, `make install-ocaml` for the dev environment, `make test-ocaml`
+for the gate. See the [API specification](docs/api/ocaml/spec.md) and
+[runnable examples](docs/api/ocaml/examples).
+
 ### Swift
 
 A SwiftPM package (iOS 16+ / macOS 13+, Swift 6) wrapping the C ABI, with

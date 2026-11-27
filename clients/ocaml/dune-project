@@ -1,0 +1,20 @@
+(lang dune 3.0)
+(name relate)
+
+(package
+ (name relate)
+ (synopsis "OCaml client for Relate, the embedded property-graph engine")
+ (description
+  "An embedded client binding the Relate engine through its typed C ABI v2: open a database, connect a session, run Cypher with typed parameters, and walk typed results (values, entities, temporals, points, vectors) with result metadata — query type, resolved namespace, counters, notifications, plans, timings and bookmarks.")
+ (source
+  (uri "git+https://github.com/relatedb/relate.git"))
+ (license Apache-2.0)
+ (authors "Relate maintainers")
+ (maintainers "Relate maintainers")
+ (homepage "https://github.com/relatedb/relate")
+ (bug_reports "https://github.com/relatedb/relate/issues")
+ (depends
+  (ocaml (>= 5.0.0))
+  (dune (>= 3.0))
+  (ctypes (>= 0.20.0))
+  (yojson (>= 2.0.0))))
